@@ -7,5 +7,8 @@ import pynvim
 nvim_addr = sys.argv[1]
 command = sys.argv[2]
 
-nvim = pynvim.attach('socket', path=nvim_addr)
-nvim.command(command)
+try:
+    nvim = pynvim.attach('socket', path=nvim_addr)
+    nvim.command(command)
+except (FileNotFoundError, pynvim.NvimError):
+    pass
