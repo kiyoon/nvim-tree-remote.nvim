@@ -38,23 +38,39 @@ end
 
 
 remote_actions.vsplit = function()
-  local nt_abspath = nt_api.tree.get_node_under_cursor().absolute_path
-  remote_nvim_command("vsplit " .. nt_abspath)
+  local node = nt_api.tree.get_node_under_cursor()
+  if node.type == "file" then
+    remote_nvim_command("vsplit " .. node.absolute_path)
+  else
+    nt_api.node.open.edit()
+  end
 end
 
 remote_actions.split = function()
-  local nt_abspath = nt_api.tree.get_node_under_cursor().absolute_path
-  remote_nvim_command("split " .. nt_abspath)
+  local node = nt_api.tree.get_node_under_cursor()
+  if node.type == "file" then
+    remote_nvim_command("split " .. node.absolute_path)
+  else
+    nt_api.node.open.edit()
+  end
 end
 
 remote_actions.tabnew = function()
-  local nt_abspath = nt_api.tree.get_node_under_cursor().absolute_path
-  remote_nvim_command("tabnew " .. nt_abspath)
+  local node = nt_api.tree.get_node_under_cursor()
+  if node.type == "file" then
+    remote_nvim_command("tabnew " .. node.absolute_path)
+  else
+    nt_api.node.open.edit()
+  end
 end
 
 remote_actions.edit = function()
-  local nt_abspath = nt_api.tree.get_node_under_cursor().absolute_path
-  remote_nvim_command("edit " .. nt_abspath)
+  local node = nt_api.tree.get_node_under_cursor()
+  if node.type == "file" then
+    remote_nvim_command("edit " .. node.absolute_path)
+  else
+    nt_api.node.open.edit()
+  end
 end
 
 return remote_actions
