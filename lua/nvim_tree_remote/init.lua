@@ -47,7 +47,7 @@ local function remote_nvim_open(command, path)
             handle = io.popen("tmux split-window -h -t " .. vim.g.nvim_tree_remote_tmux_pane .. " -P -F '#{pane_id}'")
           elseif vim.g.nvim_tree_remote_tmux_split_position == "left" then
             handle = io.popen("tmux split-window -h -t " .. vim.g.nvim_tree_remote_tmux_pane .. " -P -F '#{pane_id}'")
-            os.execute("tmux swap-pane -L")
+            os.execute("tmux swap-pane -U")
           else
             handle = io.popen("tmux split-window -v -t " .. vim.g.nvim_tree_remote_tmux_pane .. " -P -F '#{pane_id}'")
             os.execute("tmux swap-pane -U")
