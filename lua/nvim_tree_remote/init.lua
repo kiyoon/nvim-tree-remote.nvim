@@ -78,7 +78,7 @@ local function remote_nvim_open(command, path)
             os.execute("tmux send-keys -t '" .. new_pane_id .. "' \\''" .. vim.g.nvim_tree_remote_socket_path .. "'\\'")
             os.execute("tmux send-keys -t '" .. new_pane_id .. "' Enter")
           end
-          os.execute("'" .. python_host .. "' '" .. python_path .. "' '" .. vim.g.nvim_tree_remote_socket_path .. "' 'edit " .. path .. "' 100")
+          os.execute("'" .. python_host .. "' '" .. python_path .. "' '" .. vim.g.nvim_tree_remote_socket_path .. "' 'tabnew " .. path .. "' 100")
         end
       else
         print("Error executing command: " .. command)
