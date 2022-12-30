@@ -78,7 +78,8 @@ Optionally, you can open an nvim instance as a new tmux split.
 ```vim
 let g:nvim_tree_remote_tmux_pane = '.1'
 let g:nvim_tree_remote_tmux_split_position = 'top'  " top / bottom / left / right
-let g:nvim_tree_remote_editor_init_file = ''	" ~/.config/nvim/init.vim
+let g:nvim_tree_remote_tmux_editor_init_file = ''	" ~/.config/nvim/init.vim
+let g:nvim_tree_remote_tmux_editor_size = '70%'
 ```
 
 
