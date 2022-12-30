@@ -22,55 +22,74 @@ local function python_file(name)
   return get_parent_dir(get_parent_dir(get_parent_dir(script_path()))) .. "/python/" .. name
 end
 
-local function remote_nvim_command(command)
+local function remote_nvim_open(command, path)
   if vim.g.nvim_tree_remote_socket_path then
     print(command)
-    local path = python_file("nvim_command.py")
+    local python_path = python_file("nvim_command.py")
     local python_host = 'python3'
     if vim.g.python3_host_prog then
       python_host = vim.g.python3_host_prog
     end
-    os.execute("'" .. python_host .. "' '" .. path .. "' '" .. vim.g.nvim_tree_remote_socket_path .. "' '" .. command .. "'")
+    local return_code = os.execute("'" .. python_host .. "' '" .. python_path .. "' '" .. vim.g.nvim_tree_remote_socket_path .. "' '" .. command .. " " .. path .. "' 0")
+    if return_code ~= 0 then
+      if vim.g.nvim_tree_remote_tmux_pane then
+        if vim.g.nvim_tree_remote_tmux_split == "down" then
+          os.execute("tmux split-window -v -t " .. vim.g.nvim_tree_remote_tmux_pane)
+        elseif vim.g.nvim_tree_remote_tmux_split == "right" then
+          os.execute("tmux split-window -h -t " .. vim.g.nvim_tree_remote_tmux_pane)
+        elseif vim.g.nvim_tree_remote_tmux_split == "left" then
+          os.execute("tmux split-window -h -t " .. vim.g.nvim_tree_remote_tmux_pane)
+          os.execute("tmux swap-pane -L")
+        else
+          os.execute("tmux split-window -v -t " .. vim.g.nvim_tree_remote_tmux_pane)
+          os.execute("tmux swap-pane -U")
+        end
+        if vim.g.nvim_tree_remote_editor_init_file and vim.g.nvim_tree_remote_editor_init_file ~= '' then
+          os.execute("tmux send-keys 'nvim --listen '")
+          os.execute("tmux send-keys \\''" .. vim.g.nvim_tree_remote_socket_path .. "'\\'")
+          os.execute("tmux send-keys ' -u '")
+          os.execute("tmux send-keys \\''" .. vim.g.nvim_tree_remote_editor_init_file .. "'\\'")
+          os.execute("tmux send-keys Enter")
+        else
+          --os.execute("tmux send-keys 'nvim --listen '\\'" .. vim.g.nvim_tree_remote_socket_path .. "\\' Enter")
+          os.execute("tmux send-keys 'nvim --listen '")
+          os.execute("tmux send-keys \\''" .. vim.g.nvim_tree_remote_socket_path .. "'\\'")
+          os.execute("tmux send-keys Enter")
+        end
+        os.execute("'" .. python_host .. "' '" .. python_path .. "' '" .. vim.g.nvim_tree_remote_socket_path .. "' 'edit " .. path .. "' 100")
+      else
+        print("Error executing command: " .. command)
+      end
+    end
   else
     print("ERROR: g:nvim_tree_remote_socket_path not set")
   end
 end
 
-
-remote_actions.vsplit = function()
+local function open_local_or_remote(remote_command)
   local node = nt_api.tree.get_node_under_cursor()
   if node.type == "file" then
-    remote_nvim_command("vsplit " .. node.absolute_path)
+    remote_nvim_open(remote_command, node.absolute_path)
   else
     nt_api.node.open.edit()
   end
+end
+
+
+remote_actions.vsplit = function()
+  open_local_or_remote("vsplit")
 end
 
 remote_actions.split = function()
-  local node = nt_api.tree.get_node_under_cursor()
-  if node.type == "file" then
-    remote_nvim_command("split " .. node.absolute_path)
-  else
-    nt_api.node.open.edit()
-  end
+  open_local_or_remote("split")
 end
 
 remote_actions.tabnew = function()
-  local node = nt_api.tree.get_node_under_cursor()
-  if node.type == "file" then
-    remote_nvim_command("tabnew " .. node.absolute_path)
-  else
-    nt_api.node.open.edit()
-  end
+  open_local_or_remote("tabnew")
 end
 
 remote_actions.edit = function()
-  local node = nt_api.tree.get_node_under_cursor()
-  if node.type == "file" then
-    remote_nvim_command("edit " .. node.absolute_path)
-  else
-    nt_api.node.open.edit()
-  end
+  open_local_or_remote("edit")
 end
 
 return remote_actions

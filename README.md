@@ -70,3 +70,12 @@ nvim .
 
 If you open files from the Nvim-Tree, the remote nvim will open the file.  
 Change `g:nvim_tree_remote_socket_path` to your Nvim-Tree to update the remote path to another Neovim host.
+
+### Tmux
+
+Optionally, you can open an nvim instance as a new tmux split.
+
+```vim
+let g:nvim_tree_remote_tmux_pane = '.1'
+let g:nvim_tree_remote_tmux_split = 'up'  " up / down / left / right
+let g:nvim_tree_remote_editor_init_file = ''	" ~/.config/nvim/init.vim
