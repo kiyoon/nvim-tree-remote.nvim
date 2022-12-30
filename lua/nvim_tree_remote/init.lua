@@ -41,11 +41,11 @@ local function remote_nvim_open(command, path)
 
           -- split pane
           local new_pane_id = nil
-          if vim.g.nvim_tree_remote_tmux_split == "bottom" then
+          if vim.g.nvim_tree_remote_tmux_split_position == "bottom" then
             handle = io.popen("tmux split-window -v -t " .. vim.g.nvim_tree_remote_tmux_pane .. " -P -F '#{pane_id}'")
-          elseif vim.g.nvim_tree_remote_tmux_split == "right" then
+          elseif vim.g.nvim_tree_remote_tmux_split_position == "right" then
             handle = io.popen("tmux split-window -h -t " .. vim.g.nvim_tree_remote_tmux_pane .. " -P -F '#{pane_id}'")
-          elseif vim.g.nvim_tree_remote_tmux_split == "left" then
+          elseif vim.g.nvim_tree_remote_tmux_split_position == "left" then
             handle = io.popen("tmux split-window -h -t " .. vim.g.nvim_tree_remote_tmux_pane .. " -P -F '#{pane_id}'")
             os.execute("tmux swap-pane -L")
           else
