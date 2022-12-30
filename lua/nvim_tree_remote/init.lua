@@ -41,7 +41,7 @@ local function remote_nvim_open(command, path)
 
           -- split pane
           local new_pane_id = nil
-          if vim.g.nvim_tree_remote_tmux_split == "down" then
+          if vim.g.nvim_tree_remote_tmux_split == "bottom" then
             handle = io.popen("tmux split-window -v -t " .. vim.g.nvim_tree_remote_tmux_pane .. " -P -F '#{pane_id}'")
           elseif vim.g.nvim_tree_remote_tmux_split == "right" then
             handle = io.popen("tmux split-window -h -t " .. vim.g.nvim_tree_remote_tmux_pane .. " -P -F '#{pane_id}'")
@@ -55,6 +55,11 @@ local function remote_nvim_open(command, path)
           if handle ~= nil then
             new_pane_id = vim.fn.trim(handle:read("*a"))
             handle:close()
+          end
+
+          -- Register Treemux sidebar (turn off sidebar from the new editor pane)
+          if vim.g.nvim_tree_remote_treemux_path then
+            os.execute("'" .. vim.g.nvim_tree_remote_treemux_path .. "/scripts/register_sidebar.sh' " .. new_pane_id .. " " .. current_pane_id)
           end
 
           -- focus on the original pane

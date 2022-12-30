@@ -77,5 +77,15 @@ Optionally, you can open an nvim instance as a new tmux split.
 
 ```vim
 let g:nvim_tree_remote_tmux_pane = '.1'
-let g:nvim_tree_remote_tmux_split = 'up'  " up / down / left / right
+let g:nvim_tree_remote_tmux_split = 'top'  " top / bottom / left / right
 let g:nvim_tree_remote_editor_init_file = ''	" ~/.config/nvim/init.vim
+```
+
+
+#### [Treemux](https://github.com/kiyoon/treemux)
+
+This will make it possible to turn off the sidebar from the editor.
+
+```vim
+let g:nvim_tree_remote_treemux_path = '~/.tmux/plugins/treemux'
+```
