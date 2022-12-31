@@ -79,14 +79,75 @@ Optionally, you can open an nvim instance as a new tmux split.
 let g:nvim_tree_remote_tmux_pane = '.1'
 let g:nvim_tree_remote_tmux_split_position = 'top'  " top / bottom / left / right
 let g:nvim_tree_remote_tmux_editor_init_file = ''	" ~/.config/nvim/init.vim
-let g:nvim_tree_remote_tmux_editor_size = '70%'
+let g:nvim_tree_remote_tmux_split_size = '70%'
+let g:nvim_tree_remote_tmux_focus = 'editor'      " tree / editor
 ```
 
 
 #### [Treemux](https://github.com/kiyoon/treemux)
 
-This will make it possible to turn off the sidebar from the editor.
+This will make it possible to turn off the sidebar from the editor.  
+Again, you don't have to set this manually because Treemux will override it.
 
 ```vim
 let g:nvim_tree_remote_treemux_path = '~/.tmux/plugins/treemux'
+```
+
+### Advanced configuration
+
+You can create your own functions with fine-tuned parameters.  
+WARNING! The plugin is currently experimental and the function might change in the future.
+
+```lua
+-- lua code
+local nt_remote = require('nvim_tree_remote')
+
+-- Change the arguments as you like.
+-- i.e. You can choose to ignore some of the global variables and replace to what you want.
+-- local function default_edit()
+--   -- This is the same as nt_remote.edit
+--   nt_remote.open_file_remote_and_folder_local(
+--     vim.g.nvim_tree_remote_socket_path,
+--     "edit",
+--     nt_remote.tmux_defaults
+--   )
+-- end
+
+local function vsplit_focus()
+  local tmux_options = nt_remote.tmux_defaults()
+  -- below are the default values
+  -- tmux_options.pane = vim.g.nvim_tree_remote_tmux_pane
+  -- tmux_options.split_position = vim.g.nvim_tree_remote_tmux_split_position
+  -- tmux_options.split_size = vim.g.nvim_tree_remote_tmux_split_size
+  -- tmux_options.focus = vim.g.nvim_tree_remote_tmux_focus
+  tmux_options.focus = "editor"
+  nt_remote.open_file_remote_and_folder_local(
+    vim.g.nvim_tree_remote_socket_path,
+    "vsplit",
+    tmux_options
+  )
+end
+
+local function tabnew_main_pane_no_split()
+  local tmux_options = nt_remote.tmux_defaults()
+  tmux_options.split_position = ""
+  nt_remote.open_file_remote_and_folder_local(
+    vim.g.nvim_tree_remote_socket_path,
+    "tabnew",
+    tmux_options
+  )
+end
+
+nvim_tree.setup {
+  -- ...
+  view = {
+    mappings = {
+      list = {
+        { key = "v", action = "vsplit_focus", action_cb = vsplit_focus },
+        { key = "o", action = "tabnew_main_pane", action_cb = tabnew_main_pane_no_split },
+      },
+    },
+  },
+  -- ...
+}
 ```
