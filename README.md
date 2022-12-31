@@ -58,6 +58,8 @@ EOF
 
 ## Usage
 
+**If you came here for [Treemux](https://github.com/kiyoon/treemux), you don't have to worry about setting the variables because Treemux overrides them all!**
+
 Run neovim like  
 ```bash
 nvim --listen /tmp/nvim_tree_remote_socket
