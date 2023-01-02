@@ -45,7 +45,6 @@ remote_actions.remote_nvim_open = function(socket_path, command, path, tmux)
   --    tmux.split_size: str, split size (e.g. "40" means 40 rows, or "70%". Only used if tmux_split is top / bottom / left / right.
   --    tmux.focus: str, either "tree" or "editor".
   if socket_path then
-    print(command)
     local python_path = python_file("nvim_command.py")
     local python_host = 'python3'
     if vim.g.python3_host_prog then
