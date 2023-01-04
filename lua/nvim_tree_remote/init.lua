@@ -108,7 +108,7 @@ remote_actions.remote_nvim_open = function(socket_path, command, path, tmux)
             os.execute("tmux send-keys -t '" .. new_pane_id .. "' \\''" .. socket_path .. "'\\'")
             os.execute("tmux send-keys -t '" .. new_pane_id .. "' Enter")
           end
-          os.execute("'" .. python_host .. "' '" .. python_path .. "' '" .. socket_path .. "' 'tabnew " .. path .. "' 10")
+          os.execute("'" .. python_host .. "' '" .. python_path .. "' '" .. socket_path .. "' 'edit " .. path .. "' 10")
 
           if tmux.focus == "editor" then
             -- focus on the original pane
