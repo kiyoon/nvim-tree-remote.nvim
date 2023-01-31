@@ -38,7 +38,14 @@ fi
 
 for i in $(seq 1 $(( timeout * 10 ))); do
 	child_nvim_pid=$(pgrep -P $pane_pid nvim)
-	NVIM_ADDRS=$(\ls ${XDG_RUNTIME_DIR:-${TMPDIR}nvim.$USER}/**/nvim.* 2>/dev/null)
+	if [[ -z "$XDG_RUNTIME_DIR" ]]
+	then
+		# macOS
+		NVIM_ADDRS=$(\ls ${TMPDIR}nvim.${USER}/**/nvim.* 2>/dev/null)
+	else
+		# Linux
+		NVIM_ADDRS=$(\ls ${XDG_RUNTIME_DIR}/nvim.* 2>/dev/null)
+	fi
 	for addr in $NVIM_ADDRS; do
 		if [[ "$addr" == *"$child_nvim_pid"* ]]; then
 			echo "$addr"
