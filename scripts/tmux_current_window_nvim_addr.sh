@@ -8,7 +8,7 @@ then
 	exit 2
 fi
 
-NVIM_ADDRS=$(\ls ${XDG_RUNTIME_DIR}/nvim.* 2>/dev/null)
+NVIM_ADDRS=$(\ls ${XDG_RUNTIME_DIR:-${TMPDIR}nvim.$USER}/**/nvim.* 2>/dev/null)
 if [[ -z "$NVIM_ADDRS" ]]
 then
 	# >&2 echo "No nvim running."
