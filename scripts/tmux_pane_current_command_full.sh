@@ -15,7 +15,7 @@ fi
 if ! command -v tmux &> /dev/null
 then
 	>&2 echo "tmux command not found."
-    exit 2
+	exit 2
 fi
 
 tmux list-panes -t "$1" &> /dev/null
