@@ -37,7 +37,6 @@ then
 fi
 
 for i in $(seq 1 $(( timeout * 10 ))); do
-	child_nvim_pid=$(pgrep -P $pane_pid nvim)
 	if [[ -z "$XDG_RUNTIME_DIR" ]]
 	then
 		# macOS
@@ -46,11 +45,20 @@ for i in $(seq 1 $(( timeout * 10 ))); do
 		# Linux
 		NVIM_ADDRS=$(\ls ${XDG_RUNTIME_DIR}/nvim.* 2>/dev/null)
 	fi
-	for addr in $NVIM_ADDRS; do
-		if [[ "$addr" == *"$child_nvim_pid"* ]]; then
-			echo "$addr"
-			exit 0
-		fi
+
+	child_nvim_pid=$(pgrep -P $pane_pid nvim)
+
+	# Sometimes, nvim can be a child of a child when using with some plugins?
+	# the first child is nvim --embed and the next is the actual nvim process.
+	while [[ -n "$child_nvim_pid" ]]
+	do	
+		for addr in $NVIM_ADDRS; do
+			if [[ "$addr" == *"$child_nvim_pid"* ]]; then
+				echo "$addr"
+				exit 0
+			fi
+		done
+		child_nvim_pid=$(pgrep -P $child_nvim_pid nvim)
 	done
 	sleep 0.1
 done
