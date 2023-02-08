@@ -25,15 +25,18 @@ fi
 
 for pane_pid in $(tmux list-panes -F '#{pane_pid}'); do
 	child_nvim_pid=$(pgrep -P $pane_pid nvim)
-	if [[ -z "$child_nvim_pid" ]]
-	then
-		continue
-	fi
-	for addr in $NVIM_ADDRS; do
-		if [[ "$addr" == *"$child_nvim_pid"* ]]; then
-			echo "$addr"
-			exit 0
-		fi
+
+	# Sometimes, nvim can be a child of a child when using with some plugins?
+	# the first child is nvim --embed and the next is the actual nvim process.
+	while [[ -n "$child_nvim_pid" ]]
+	do	
+		for addr in $NVIM_ADDRS; do
+			if [[ "$addr" == *"$child_nvim_pid"* ]]; then
+				echo "$addr"
+				exit 0
+			fi
+		done
+		child_nvim_pid=$(pgrep -P $child_nvim_pid nvim)
 	done
 done
 
