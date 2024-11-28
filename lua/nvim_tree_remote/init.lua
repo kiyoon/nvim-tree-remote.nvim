@@ -148,11 +148,13 @@ remote_actions.remote_nvim_open = function(socket_path, command, path, tmux)
           --     .. " "
           --     .. current_pane_id
           -- )
-          vim.system({
-            vim.g.nvim_tree_remote_treemux_path .. "/scripts/register_sidebar.sh",
-            new_pane_id,
-            current_pane_id,
-          })
+          vim
+            .system({
+              vim.g.nvim_tree_remote_treemux_path .. "/scripts/register_sidebar.sh",
+              new_pane_id,
+              current_pane_id,
+            })
+            :wait()
         end
 
         if tmux.focus == "tree" then
@@ -202,7 +204,7 @@ remote_actions.remote_nvim_open = function(socket_path, command, path, tmux)
         -- os.execute(
         --   "'" .. python_host .. "' '" .. python_path .. "' '" .. socket_path .. "' '" .. focus_command .. "' 0"
         -- )
-        vim.system({ python_host, python_path, socket_path, focus_command, "0" })
+        vim.system({ python_host, python_path, socket_path, focus_command, "0" }):wait()
       end
     end
   end
