@@ -128,7 +128,7 @@ remote_actions.remote_nvim_open = function(socket_path, command, path, tmux)
           if pane_command == "" then
             new_pane_id = tmux.pane
             -- os.execute("tmux send-keys -t '" .. new_pane_id .. "' C-c")
-            vim.system({ "tmux", "send-keys", "-t", new_pane_id, "C-c" })
+            vim.system({ "tmux", "send-keys", "-t", new_pane_id, "C-c" }):wait()
           else
             vim.notify("ERROR: Main pane has a running process.", vim.log.levels.ERROR, {})
             return
@@ -158,33 +158,33 @@ remote_actions.remote_nvim_open = function(socket_path, command, path, tmux)
         if tmux.focus == "tree" then
           -- focus on the original pane
           -- os.execute("tmux select-pane -t '" .. current_pane_id .. "'")
-          vim.system({ "tmux", "select-pane", "-t", current_pane_id })
+          vim.system({ "tmux", "select-pane", "-t", current_pane_id }):wait()
         end
 
         -- Open nvim
         -- os.execute("tmux send-keys -t '" .. new_pane_id .. "' nvim")
-        vim.system({ "tmux", "send-keys", "-t", new_pane_id, "nvim" })
+        vim.system({ "tmux", "send-keys", "-t", new_pane_id, "nvim" }):wait()
         if socket_path ~= "" then
           -- os.execute("tmux send-keys -t '" .. new_pane_id .. "' '--listen \\''" .. socket_path .. "'\\'")
-          vim.system({ "tmux", "send-keys", "-t", new_pane_id, "--listen " .. socket_path })
+          vim.system({ "tmux", "send-keys", "-t", new_pane_id, "--listen " .. socket_path }):wait()
         end
         if vim.g.nvim_tree_remote_editor_init_file and vim.g.nvim_tree_remote_editor_init_file ~= "" then
           -- os.execute("tmux send-keys -t '" .. new_pane_id .. "' ' -u '")
-          vim.system({ "tmux", "send-keys", "-t", new_pane_id, " -u " })
+          vim.system({ "tmux", "send-keys", "-t", new_pane_id, " -u " }):wait()
           -- os.execute(
           --   "tmux send-keys -t '" .. new_pane_id .. "' \\''" .. vim.g.nvim_tree_remote_editor_init_file .. "'\\'"
           -- )
-          vim.system({ "tmux", "send-keys", "-t", new_pane_id, vim.g.nvim_tree_remote_editor_init_file })
+          vim.system({ "tmux", "send-keys", "-t", new_pane_id, vim.g.nvim_tree_remote_editor_init_file }):wait()
         end
         -- os.execute("tmux send-keys -t '" .. new_pane_id .. "' Enter")
-        vim.system({ "tmux", "select-pane", "-t", new_pane_id, "Enter" })
+        vim.system({ "tmux", "send-keys", "-t", new_pane_id, "Enter" }):wait()
 
         -- Open file in nvim
         if socket_path == "" then
           socket_path = tmux_pane_wait_nvim(new_pane_id)
         end
         -- os.execute("'" .. python_host .. "' '" .. python_path .. "' '" .. socket_path .. "' 'edit " .. path .. "' 10")
-        vim.system({ python_host, python_path, socket_path, "edit " .. path, "10" })
+        vim.system({ python_host, python_path, socket_path, "edit " .. path, "10" }):wait()
 
         if tmux.focus == "editor" then
           -- focus on the original pane
