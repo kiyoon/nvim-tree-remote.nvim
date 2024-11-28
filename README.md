@@ -21,16 +21,14 @@ use {'kiyoon/nvim-tree-remote.nvim'}
 
 Install `pynvim`.  
 ```bash
-pip3 install --user pynvim
+/usr/bin/python3 -m pip install --user pynvim
 ```
 
-Setup Nvim-Tree with remote actions in vimscript / lua:  
-```vim
-" For lua users, delete the first and the last line.
-lua << EOF
-
+Setup Nvim-Tree with remote actions.
+```lua
 -- Remote nvim's --listen address
 vim.g.nvim_tree_remote_socket_path = '/tmp/nvim_tree_remote_socket'
+vim.g.nvim_tree_remote_python_path = '/usr/bin/python3'  -- use python with pynvim installed
 
 local nvim_tree = require('nvim-tree')
 local nt_remote = require('nvim_tree_remote')
@@ -53,7 +51,6 @@ nvim_tree.setup {
   },
   -- ...
 }
-EOF
 ```
 
 ## Usage
