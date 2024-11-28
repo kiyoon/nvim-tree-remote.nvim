@@ -186,7 +186,7 @@ remote_actions.remote_nvim_open = function(socket_path, command, path, tmux)
           socket_path = tmux_pane_wait_nvim(new_pane_id)
         end
         -- os.execute("'" .. python_host .. "' '" .. python_path .. "' '" .. socket_path .. "' 'edit " .. path .. "' 10")
-        vim.system({ python_host, python_path, socket_path, "edit " .. path, "10" }):wait()
+        vim.system({ python_host, python_path, socket_path, "edit '" .. path .. "'", "10" }):wait()
 
         if tmux.focus == "editor" then
           -- focus on the original pane
