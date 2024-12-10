@@ -141,21 +141,21 @@ remote_actions.remote_nvim_open = function(socket_path, command, path, tmux)
         end
         -- Register Treemux sidebar (turn off sidebar from the new editor pane)
         if vim.g.nvim_tree_remote_treemux_path and new_pane_id ~= tmux.pane then
-          -- os.execute(
-          --   "'"
-          --     .. vim.g.nvim_tree_remote_treemux_path
-          --     .. "/scripts/register_sidebar.sh' "
-          --     .. new_pane_id
-          --     .. " "
-          --     .. current_pane_id
-          -- )
-          vim
-            .system({
-              vim.g.nvim_tree_remote_treemux_path .. "/scripts/register_sidebar.sh",
-              new_pane_id,
-              current_pane_id,
-            })
-            :wait()
+          os.execute(
+            "'"
+              .. vim.g.nvim_tree_remote_treemux_path
+              .. "/scripts/register_sidebar.sh' "
+              .. new_pane_id
+              .. " "
+              .. current_pane_id
+          )
+          -- vim
+          --   .system({
+          --     vim.g.nvim_tree_remote_treemux_path .. "/scripts/register_sidebar.sh",
+          --     new_pane_id,
+          --     current_pane_id,
+          --   })
+          --   :wait()
         end
 
         if tmux.focus == "tree" then
