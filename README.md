@@ -1,6 +1,8 @@
 # Nvim-Tree-Remote.nvim
 
-A set of [Nvim-Tree](https://github.com/nvim-tree/nvim-tree.lua) actions to open files on another remote neovim.
+A set of [Nvim-Tree](https://github.com/nvim-tree/nvim-tree.lua) and [Neo-Tree](https://github.com/nvim-neo-tree/neo-tree.nvim) actions to open files on another remote neovim, including opening in Tmux splits.
+
+Unlike the name suggests, this plugin works with both Nvim-Tree and Neo-Tree.
 
 Why? Sometimes you want to use Nvim-Tree as a standalone file browser. This way, you can make your own IDE with Tmux, for example.  
 The problem is that the Nvim-Tree doesn't interact with another Neovim which can get annoying.
@@ -9,7 +11,9 @@ With this tool, you can control a remote instance of Neovim which makes it possi
 
 ## Installation
 
-Install using lazy.nvim:
+### Install using lazy.nvim:
+
+For Nvim-Tree,
 
 ```lua
 -- Remote nvim's --listen address
@@ -37,12 +41,49 @@ end
 require("lazy").setup({
   {
     "nvim-tree/nvim-tree.lua",
+    dependencies = {
+      "kiyoon/nvim-tree-remote.nvim",
+    },
     config = function()
       require("nvim-tree").setup({
         on_attach = nvim_tree_on_attach,
       }
     end,
   }
+})
+```
+
+For Neo-Tree,
+
+```lua
+require("lazy").setup({
+  {
+    "nvim-neo-tree/neo-tree.nvim",
+    branch = "v3.x",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvim-tree/nvim-web-devicons",
+      "MunifTanjim/nui.nvim",
+      "kiyoon/nvim-tree-remote.nvim",
+    },
+    config = function()
+      require("neo-tree").setup({
+        event_handlers = {
+          {
+            event = "file_open_requested",
+            handler = function(args)
+              local nt_remote = require("nvim_tree_remote")
+              -- customise the socket_path and tmux options as you like.
+              nt_remote.remote_nvim_open('/tmp/nvim_tree_remote_socket', args.open_cmd, args.path, nt_remote.tmux_defaults())
+
+              -- stop default open; we already did it remotely
+              return { handled = true }
+            end,
+          },
+        },
+      })
+    end,
+  },
 })
 ```
 

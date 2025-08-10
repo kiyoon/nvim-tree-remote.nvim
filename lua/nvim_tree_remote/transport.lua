@@ -69,14 +69,14 @@ end
 
 ---Open a path on the remote instance using a given Ex command.
 ---@param path string
----@param how  'edit'|'split'|'vsplit'|'tabnew'|nil
+---@param open_cmd  'edit'|'split'|'vsplit'|'tabnew'|nil
 ---@param addr_override string|nil
 ---@param timeout_secs number|nil
-function transport.open(path, how, addr_override, timeout_secs)
-  if how ~= "split" and how ~= "vsplit" and how ~= "tabnew" then
-    how = "edit"
+function transport.open(path, open_cmd, addr_override, timeout_secs)
+  if open_cmd ~= "split" and open_cmd ~= "vsplit" and open_cmd ~= "tabnew" then
+    open_cmd = "edit"
   end
-  local ex = ("%s %s"):format(how, vim.fn.fnameescape(path))
+  local ex = ("%s %s"):format(open_cmd, vim.fn.fnameescape(path))
   transport.exec(ex, addr_override, timeout_secs)
 end
 
