@@ -30,17 +30,15 @@ local function nvim_tree_on_attach(bufnr)
 
   api.config.mappings.default_on_attach(bufnr)
 
-  vim.keymap.set("n", "l", nt_remote.tabnew, opts "Open in treemux")
-  vim.keymap.set("n", "<CR>", nt_remote.tabnew, opts "Open in treemux")
-  vim.keymap.set("n", "<C-t>", nt_remote.tabnew, opts "Open in treemux")
-  vim.keymap.set("n", "<2-LeftMouse>", nt_remote.tabnew, opts "Open in treemux")
-  vim.keymap.set("n", "v", nt_remote.vsplit, opts "Vsplit in treemux")
-  vim.keymap.set("n", "<C-v>", nt_remote.vsplit, opts "Vsplit in treemux")
-  vim.keymap.set("n", "<C-x>", nt_remote.split, opts "Split in treemux")
-  vim.keymap.set("n", "o", nt_remote.tabnew_main_pane, opts "Open in treemux without tmux split")
+  vim.keymap.set("n", "l", nt_remote.tabnew, opts "Open in tmux")
+  vim.keymap.set("n", "<CR>", nt_remote.tabnew, opts "Open in tmux")
+  vim.keymap.set("n", "<C-t>", nt_remote.tabnew, opts "Open in tmux")
+  vim.keymap.set("n", "<2-LeftMouse>", nt_remote.tabnew, opts "Open in tmux")
+  vim.keymap.set("n", "v", nt_remote.vsplit, opts "Vsplit in tmux")
+  vim.keymap.set("n", "<C-v>", nt_remote.vsplit, opts "Vsplit in tmux")
+  vim.keymap.set("n", "<C-x>", nt_remote.split, opts "Split in tmux")
+  vim.keymap.set("n", "o", nt_remote.tabnew_main_pane, opts "Open in tmux without split")
 end
-local nvim_tree = require('nvim-tree')
-local nt_remote = require('nvim_tree_remote')
 
 require("lazy").setup({
   {
@@ -138,16 +136,27 @@ local function tabnew_main_pane_no_split()
   )
 end
 
-nvim_tree.setup {
-  -- ...
-  view = {
-    mappings = {
-      list = {
-        { key = "v", action = "vsplit_focus", action_cb = vsplit_focus },
-        { key = "o", action = "tabnew_main_pane", action_cb = tabnew_main_pane_no_split },
-      },
-    },
-  },
-  -- ...
-}
+local function nvim_tree_on_attach(bufnr)
+  local nt_remote = require "nvim_tree_remote"
+
+  local function opts(desc)
+    return { desc = "nvim-tree: " .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
+  end
+
+  api.config.mappings.default_on_attach(bufnr)
+
+  vim.keymap.set("n", "v", vsplit_focus, opts "Open in tmux split")
+  vim.keymap.set("n", "o", tabnew_main_pane_no_split, opts "Open in tmux without split")
+end
+
+require("lazy").setup({
+  {
+    "nvim-tree/nvim-tree.lua",
+    config = function()
+      require("nvim-tree").setup({
+        on_attach = nvim_tree_on_attach,
+      }
+    end,
+  }
+})
 ```
