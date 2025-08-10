@@ -53,7 +53,7 @@ require("lazy").setup({
 })
 ```
 
-For Neo-Tree,
+For Neo-Tree, make sure you don't use Nvim-Tree functions like `split`, `vsplit`, `tabnew` etc. Use `remote_nvim_open` instead.
 
 ```lua
 require("lazy").setup({
