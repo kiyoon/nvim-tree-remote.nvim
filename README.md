@@ -9,17 +9,11 @@ With this tool, you can control a remote instance of Neovim which makes it possi
 
 ## Installation
 
-Install `pynvim`.  
-```bash
-/usr/bin/python3 -m pip install --user pynvim
-```
-
 Install using lazy.nvim:
 
 ```lua
 -- Remote nvim's --listen address
 vim.g.nvim_tree_remote_socket_path = '/tmp/nvim_tree_remote_socket'
-vim.g.nvim_tree_remote_python_path = '/usr/bin/python3'  -- use python with pynvim installed
 
 local function nvim_tree_on_attach(bufnr)
   local nt_remote = require "nvim_tree_remote"

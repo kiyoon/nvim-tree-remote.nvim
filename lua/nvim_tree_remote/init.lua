@@ -1,7 +1,4 @@
-local status_ok, nt_api = pcall(require, "nvim-tree.api")
-if not status_ok then
-  return
-end
+local transport = require("nvim_tree_remote.transport")
 
 local remote_actions = setmetatable({}, {
   __index = function(_, k)
@@ -15,10 +12,6 @@ end
 
 local function get_parent_dir(path)
   return vim.fn.fnamemodify(path, ":h")
-end
-
-local function python_file(name)
-  return get_parent_dir(get_parent_dir(get_parent_dir(script_path()))) .. "/python/" .. name
 end
 
 local function get_tmux_pane_running_command(pane_id)
@@ -59,16 +52,18 @@ local function tmux_pane_wait_nvim(pane_id)
   return vim.fn.trim(result)
 end
 
-remote_actions.remote_nvim_open = function(socket_path, command, path, tmux)
-  -- Args:
-  --  socket_path: str, path to nvim --listen socket
-  --  command: str, vim command to run in neovim (e.g. edit, split, vsplit, tabnew)
-  --  path: str, path to file to open
-  --  tmux: table, tmux options
-  --    tmux.pane: str | nil, pane ID to open in or make split from
-  --    tmux.split_position: str, split direction, or empty string for no split (e.g. "top", "bottom", "left", "right", "")
-  --    tmux.split_size: str, split size (e.g. "40" means 40 rows, or "70%". Only used if tmux_split is top / bottom / left / right.
-  --    tmux.focus: str, either "tree" or "editor".
+---@class RemoteNvimOpenTmuxOpts
+---@field pane string|nil pane ID to open in or make split from
+---@field split_position string split direction, or empty string for no split (e.g. "top", "bottom", "left", "right", "")
+---@field split_size string split size (e.g. "40" means 40 rows, or "70%". Only used if split_position is top / bottom / left / right.
+---@field focus string either "tree" or "editor".
+
+--- Open a file in a remote Neovim instance
+---@param socket_path string|nil path to nvim --listen socket. If nil, will try to get the current tmux window nvim address.
+---@param how string vim command to run in neovim (e.g. edit, split, vsplit, tabnew)
+---@param path string path to file to open
+---@param tmux RemoteNvimOpenTmuxOpts tmux options. If nil, will use defaults from g:nvim_tree_remote_tmux_pane, g:nvim_tree_remote_tmux_split_position, g:nvim_tree_remote_tmux_split_size, g:nvim_tree_remote_tmux_focus
+remote_actions.remote_nvim_open = function(socket_path, how, path, tmux)
   if socket_path == nil then
     socket_path = get_current_tmux_window_nvim_address()
     if socket_path == "" and tmux.pane == nil then
@@ -77,30 +72,10 @@ remote_actions.remote_nvim_open = function(socket_path, command, path, tmux)
     end
   end
 
-  local python_path = python_file("nvim_command.py")
-  local python_host = "python3"
-  if vim.g.nvim_tree_remote_python_path then
-    python_host = vim.g.nvim_tree_remote_python_path
-  end
-  local return_code = os.execute(
-    "'"
-      .. python_host
-      .. "' '"
-      .. python_path
-      .. "' '"
-      .. socket_path
-      .. "' '"
-      .. command
-      .. " "
-      .. path
-      .. "' 0 2> /dev/null"
-  )
-  -- For nvim 0.10
-  -- local proc = vim
-  --   .system({ python_host, python_path, socket_path, command .. " " .. path, "0" }, { stderr = false })
-  --   :wait()
-  -- local return_code = proc.code
-  if return_code ~= 0 then
+  local ok = pcall(function()
+    transport.open(path, how, socket_path, 0)
+  end)
+  if not ok then
     if tmux.pane ~= nil then
       -- Check current pane
       local handle = io.popen("tmux display-message -p '#{pane_id}'")
@@ -186,8 +161,7 @@ remote_actions.remote_nvim_open = function(socket_path, command, path, tmux)
         if socket_path == "" then
           socket_path = tmux_pane_wait_nvim(new_pane_id)
         end
-        os.execute("'" .. python_host .. "' '" .. python_path .. "' '" .. socket_path .. "' 'edit " .. path .. "' 10")
-        -- vim.system({ python_host, python_path, socket_path, "edit " .. path, "10" }):wait()
+        transport.open(path, "edit", socket_path, 10)
 
         if tmux.focus == "editor" then
           -- focus on the original pane
@@ -196,22 +170,20 @@ remote_actions.remote_nvim_open = function(socket_path, command, path, tmux)
         end
       end
     else
-      vim.notify("Error executing command: " .. command, vim.log.levels.ERROR, {})
+      vim.notify("Error executing command: " .. how, vim.log.levels.ERROR, {})
     end
   else
     if tmux.pane ~= nil then
       if tmux.focus == "editor" then
         local focus_command = 'call system("tmux select-pane -t $TMUX_PANE")'
-        os.execute(
-          "'" .. python_host .. "' '" .. python_path .. "' '" .. socket_path .. "' '" .. focus_command .. "' 0"
-        )
-        -- vim.system({ python_host, python_path, socket_path, focus_command, "0" }):wait()
+        transport.exec(focus_command, socket_path, 0)
       end
     end
   end
 end
 
 remote_actions.open_file_remote_and_folder_local = function(socket_path, remote_command, tmux_opts)
+  local nt_api = require("nvim-tree.api")
   local node = nt_api.tree.get_node_under_cursor()
   if node.type == "file" then
     remote_actions.remote_nvim_open(socket_path, remote_command, node.absolute_path, tmux_opts)
