@@ -9,48 +9,49 @@ With this tool, you can control a remote instance of Neovim which makes it possi
 
 ## Installation
 
-Install using vim-plug:
-```vim
-Plug 'kiyoon/nvim-tree-remote.nvim'
-```
-
-Install using packer:
-```lua
-use {'kiyoon/nvim-tree-remote.nvim'}
-```
-
 Install `pynvim`.  
 ```bash
 /usr/bin/python3 -m pip install --user pynvim
 ```
 
-Setup Nvim-Tree with remote actions.
+Install using lazy.nvim:
+
 ```lua
 -- Remote nvim's --listen address
 vim.g.nvim_tree_remote_socket_path = '/tmp/nvim_tree_remote_socket'
 vim.g.nvim_tree_remote_python_path = '/usr/bin/python3'  -- use python with pynvim installed
 
+local function nvim_tree_on_attach(bufnr)
+  local nt_remote = require "nvim_tree_remote"
+
+  local function opts(desc)
+    return { desc = "nvim-tree: " .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
+  end
+
+  api.config.mappings.default_on_attach(bufnr)
+
+  vim.keymap.set("n", "l", nt_remote.tabnew, opts "Open in treemux")
+  vim.keymap.set("n", "<CR>", nt_remote.tabnew, opts "Open in treemux")
+  vim.keymap.set("n", "<C-t>", nt_remote.tabnew, opts "Open in treemux")
+  vim.keymap.set("n", "<2-LeftMouse>", nt_remote.tabnew, opts "Open in treemux")
+  vim.keymap.set("n", "v", nt_remote.vsplit, opts "Vsplit in treemux")
+  vim.keymap.set("n", "<C-v>", nt_remote.vsplit, opts "Vsplit in treemux")
+  vim.keymap.set("n", "<C-x>", nt_remote.split, opts "Split in treemux")
+  vim.keymap.set("n", "o", nt_remote.tabnew_main_pane, opts "Open in treemux without tmux split")
+end
 local nvim_tree = require('nvim-tree')
 local nt_remote = require('nvim_tree_remote')
 
-nvim_tree.setup {
-  -- ...
-  view = {
-    mappings = {
-      list = {
-        { key = { "l", "<CR>", "<C-t>", "<2-LeftMouse>" }, action = "remote_tabnew", action_cb = nt_remote.tabnew },
-        { key = { "v", "<C-v>" }, action = "remote_vsplit", action_cb = nt_remote.vsplit },
-        { key = "<C-x>", action = "remote_split", action_cb = nt_remote.split },
-        { key = "o", action = "remote_edit", action_cb = nt_remote.edit },
-        { key = "h", action = "close_node" },
-      },
-    },
-  },
-  remove_keymaps = {
-    'O',
-  },
-  -- ...
-}
+require("lazy").setup({
+  {
+    "nvim-tree/nvim-tree.lua",
+    config = function()
+      require("nvim-tree").setup({
+        on_attach = nvim_tree_on_attach,
+      }
+    end,
+  }
+})
 ```
 
 ## Usage
